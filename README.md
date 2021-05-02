@@ -172,7 +172,7 @@ you get this parsed query
 ```
 
 and this plot (static here, for the dynamic version please look at the notebook example3 / html output):
-![example flow](./readme_meta/example_flow_static.png)
+![example flow](readme_meta/example_flow_static.png?raw=true)
 
 ## What is not supported
 * Parsing select subqueries inside where, having and case statements. Only subqueries inside 'from' are parsed currently. Everything else is just represented as text in the hover text.
