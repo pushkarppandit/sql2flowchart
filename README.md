@@ -24,28 +24,40 @@ test_query_obj.fig.write_html('<path to output file>.html') # save interactive p
 
 For the input query
 ```sql
-select aa.id,
-a_sum,
-b_sum
-from (
-    select a_id as id,
-    sum(a) as a_sum
-    from `schema.aaa`
-    group by 1
-) aa
-left join 
-(
-    select b_id as id,
-    sum(b) as b_sum
-    from `schema.bbb`
-    group by 1
-) bb
-on aa.id = bb.id
+with 
+combined as (
+    select aa.id,
+    a_sum,
+    b_sum
+    from (
+        select a_id as id,
+        sum(a) as a_sum
+        from `schema.aaa`
+        group by 1
+    ) aa
+    left join 
+    (
+        select b_id as id,
+        sum(b) as b_sum
+        from `schema.bbb`
+        group by 1
+    ) bb
+    on aa.id = bb.id
+),
+c as (
+    select id,
+    a_sum,
+    b_sum
+    from `schema.old_agg`
+    )
+select * from combined
+union all
+select * from c
 ```
 you get this parsed query
 ```json
 {
-  "out": {
+  "combined": {
     "select": {
       "id": "aa.id",
       "a_sum": "a_sum",
@@ -53,8 +65,8 @@ you get this parsed query
     },
     "from": {
       "input_tables": {
-        "aa": "VspD8Zlu",
-        "bb": "mMQZdrm8"
+        "aa": "XaL8w01b",
+        "bb": "uL0mnQCV"
       },
       "joins": {
         "bb": {
@@ -68,7 +80,63 @@ you get this parsed query
     "group": [],
     "having": ""
   },
-  "VspD8Zlu": {
+  "c": {
+    "select": {
+      "id": "id",
+      "a_sum": "a_sum",
+      "b_sum": "b_sum"
+    },
+    "from": {
+      "input_tables": {
+        "`schema.old_agg`": "`schema.old_agg`"
+      }
+    },
+    "where": "",
+    "group": [],
+    "having": ""
+  },
+  "5AidgeWq": {
+    "select": {
+      "*": "*"
+    },
+    "from": {
+      "input_tables": {
+        "combined": "combined"
+      }
+    },
+    "where": "",
+    "group": [],
+    "having": ""
+  },
+  "u6jQKm4F": {
+    "select": {
+      "*": "*"
+    },
+    "from": {
+      "input_tables": {
+        "c": "c"
+      }
+    },
+    "where": "",
+    "group": [],
+    "having": ""
+  },
+  "out": {
+    "select": {
+      "*": "*"
+    },
+    "from": {
+      "input_tables": {
+        "5AidgeWq": "5AidgeWq",
+        "u6jQKm4F": "u6jQKm4F"
+      },
+      "combine_type": "union"
+    },
+    "where": "",
+    "group": [],
+    "having": ""
+  },
+  "XaL8w01b": {
     "select": {
       "id": "a_id",
       "a_sum": "sum(a)"
@@ -84,7 +152,7 @@ you get this parsed query
     ],
     "having": ""
   },
-  "mMQZdrm8": {
+  "uL0mnQCV": {
     "select": {
       "id": "b_id",
       "b_sum": "sum(b)"
